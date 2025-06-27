@@ -1,3 +1,3 @@
 # django-library-app
-Django web application for library
-go to the other branch for code.
+Django web application for library. 
+Go to the other branch for code.
