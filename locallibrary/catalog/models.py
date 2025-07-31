@@ -1,7 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from django.db.models import UniqueConstraint
-from django.db.models.functions import Lower
+from django.core.exceptions import ValidationError
 import uuid
 from django.conf import settings
 from datetime import date
@@ -20,15 +19,16 @@ class Genre(models.Model):
     
     def get_absolute_url(self):
         return reverse("genre-detail", args=[str(self.id)])
-    
+
+    def clean(self):
+        existing = Genre.objects.filter(name__iexact=self.name)
+        if self.pk:
+            existing = existing.exclude(pk=self.pk)
+        if existing.exists():
+            raise ValidationError("Genre already exists (case-insensitive match)")
+        
     class Meta:
-        constraints = [
-            UniqueConstraint(
-                Lower('name'),
-                name='genre_name_case_insensitive_unique',
-                violation_error_message='Genre already exists (case insensitive match)'
-            ),
-        ]
+        verbose_name_plural = "Genres"
 
     
 class Book(models.Model):
